@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import Board from './Board.jsx';
 
 export default function Game(props) {
-  const [state, setState] = useState({
-    history: [{squares: Array(9).fill(null)}],
-    stempNumber: 0,
-    xIsNext: true,
-  });
+  const [history, setHistory] = useState(
+    [{squares: Array(9).fill(null)}],
+  );
+  const [stepNumber, setStepNumber] = useState(0);
+  const [xIsNext, setXIsNext] = useState(true);
 
   const calculateWinner = (squares) => {
     const lines = [
@@ -29,30 +29,24 @@ export default function Game(props) {
   }
 
   const handleClick = (i) => {
-    const history = state.history.slice(0, state.stempNumber + 1);
-    const current = history[history.length - 1];
+    const nextHistory = history.slice(0, stepNumber + 1);
+    const current = nextHistory[nextHistory.length - 1];
     const squares = current.squares.slice();
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    squares[i] = state.xIsNext ? 'X' : 'O';
-    setState({
-      history: history.concat([{squares}]),
-      stempNumber: history.length,
-      xIsNext: !state.xIsNext,
-    });
+    squares[i] = xIsNext ? 'X' : 'O';
+    setHistory(nextHistory.concat([{squares}]));
+    setStepNumber(nextHistory.length);
+    setXIsNext(!xIsNext);
   }
 
   const jumpTo = (step) => {
-    setState({
-      history: state.history,
-      stempNumber: step,
-      xIsNext: (step % 2) === 0,
-    });
+    setStepNumber(step);
+    setXIsNext((step % 2) === 0);
   }
 
-  const history = state.history;
-  const current = history[state.stempNumber];
+  const current = history[stepNumber];
   const winner = calculateWinner(current.squares);
 
   const moves = history.map((step, move) => {
@@ -70,7 +64,7 @@ export default function Game(props) {
   if (winner) {
     status = 'Winner: ' + winner
   } else {
-    status = 'Next player: ' + (state.xIsNext ? 'X' : 'O');
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
   return (
